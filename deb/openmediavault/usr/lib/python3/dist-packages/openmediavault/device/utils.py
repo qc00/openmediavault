@@ -19,7 +19,6 @@
 # You should have received a copy of the GNU General Public License
 # along with OpenMediaVault. If not, see <https://www.gnu.org/licenses/>.
 import os
-import re
 import stat
 
 
@@ -76,9 +75,7 @@ def is_device_file(path) -> bool:
         otherwise ``False``.
     :rtype: bool
     """
-    if not isinstance(path, str):
-        return False
-    return bool(re.match(r'^/dev/.+$', path))
+    return isinstance(path, str) and path.startswith("/dev/")
 
 
 def is_device_file_by(path) -> bool:
@@ -97,9 +94,7 @@ def is_device_file_by(path) -> bool:
         otherwise ``False``.
     :rtype: bool
     """
-    if not isinstance(path, str):
-        return False
-    return bool(re.match(r'^/dev/disk/by-\S+/.+$', path))
+    return isinstance(path, str) and path.startswith("/dev/disk/by-")
 
 
 def is_device_file_by_uuid(path) -> bool:
@@ -117,9 +112,7 @@ def is_device_file_by_uuid(path) -> bool:
         otherwise ``False``.
     :rtype: bool
     """
-    if not isinstance(path, str):
-        return False
-    return bool(re.match(r'^/dev/disk/by-uuid/.+$', path))
+    return isinstance(path, str) and path.startswith("/dev/disk/by-uuid/")
 
 
 def is_device_file_by_id(path) -> bool:
@@ -137,9 +130,7 @@ def is_device_file_by_id(path) -> bool:
         otherwise ``False``.
     :rtype: bool
     """
-    if not isinstance(path, str):
-        return False
-    return bool(re.match(r'^/dev/disk/by-id/.+$', path))
+    return isinstance(path, str) and path.startswith("/dev/disk/by-id/")
 
 
 def is_device_file_by_label(path) -> bool:
@@ -156,9 +147,7 @@ def is_device_file_by_label(path) -> bool:
         otherwise ``False``.
     :rtype: bool
     """
-    if not isinstance(path, str):
-        return False
-    return bool(re.match(r'^/dev/disk/by-label/.+$', path))
+    return isinstance(path, str) and path.startswith("/dev/disk/by-label/")
 
 
 def is_device_file_by_path(path) -> bool:
@@ -176,6 +165,4 @@ def is_device_file_by_path(path) -> bool:
         otherwise ``False``.
     :rtype: bool
     """
-    if not isinstance(path, str):
-        return False
-    return bool(re.match(r'^/dev/disk/by-path/.+$', path))
+    return isinstance(path, str) and path.startswith("/dev/disk/by-path/")

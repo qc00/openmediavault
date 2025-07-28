@@ -190,13 +190,8 @@ class Filesystem(openmediavault.device.BlockDevice):
         :return: Returns a device file.
         :rtype: str
         """
-        if self.has_device_file_by_uuid():
-            return self.device_file_by_uuid
-        elif self.has_device_file_by_id():
-            return self.device_file_by_id
-        elif self.has_device_file_by_path():
-            return self.device_file_by_path
-        return self.canonical_device_file
+        return self.device_file_by_uuid or self.device_file_by_id or self.device_file_by_path or \
+            self.canonical_device_file
 
     @property
     def uuid(self) -> str:

@@ -23,6 +23,7 @@ import re
 from typing import Any, Dict, List, Optional
 
 import openmediavault.procutils
+from openmediavault import log
 import pyudev
 
 from .utils import (is_block_device, is_device_file_by_id,
@@ -33,6 +34,7 @@ class BlockDevice:
     """
     This class is a wrapper for block devices.
     """
+    _device_links: List[str] = []
 
     @classmethod
     def list_devices(cls) -> List[str]:
@@ -85,9 +87,15 @@ class BlockDevice:
         :return: Returns an array of strings with the device files.
         :rtype: list
         """
-        context = pyudev.Context()
-        device = pyudev.Devices.from_device_file(context, self.device_file)
-        return [device_link for device_link in device.device_links]
+        if not self._device_links:
+            try:
+                context = pyudev.Context()
+                device = pyudev.Devices.from_device_file(context, self.device_file)
+                self._device_links = list(device.device_links)
+            except Exception as e:
+                log.warning("Failed to get device_links of %s: %s", self.device_file, e)
+                self._device_links = [self.device_file]
+        return self._device_links
 
     @property
     def predictable_device_file(self) -> str:
@@ -101,11 +109,7 @@ class BlockDevice:
         :return: Returns a device file.
         :rtype: str
         """
-        if self.has_device_file_by_id():
-            return self.device_file_by_id
-        elif self.has_device_file_by_path():
-            return self.device_file_by_path
-        return self.canonical_device_file
+        return self.device_file_by_id or self.device_file_by_path or self.canonical_device_file
 
     def has_device_file_by_id(self) -> bool:
         """
@@ -114,7 +118,7 @@ class BlockDevice:
             otherwise `False`.
         :rtype: bool
         """
-        return is_device_file_by_id(self.device_file_by_id)
+        return self.device_file_by_id is not None
 
     @property
     def device_file_by_id(self) -> Optional[str]:
@@ -141,7 +145,7 @@ class BlockDevice:
             otherwise `False`.
         :rtype: bool
         """
-        return is_device_file_by_path(self.device_file_by_path)
+        return self.device_file_by_path is not None
 
     @property
     def device_file_by_path(self) -> Optional[str]:
@@ -168,7 +172,7 @@ class BlockDevice:
             otherwise `False`.
         :rtype: bool
         """
-        return is_device_file_by_uuid(self.device_file_by_uuid)
+        return self.device_file_by_uuid is not None
 
     @property
     def device_file_by_uuid(self) -> Optional[str]:
